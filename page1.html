@@ -1,0 +1,78 @@
+<!DOCUMENT html>
+<html>
+    <head>
+        <script>
+            function saveArea2Text(){
+                let area2 = document.getElementById('textarea2');
+                //let fso = CreateObject("Scripting.FileSystemObject"); 
+                let s   = Scripting.FileSystemObject.CreateTextFile("./textArea2Text.txt", True);
+            }
+            function post(message){
+                if (document.getElementById('textarea2').value == ''){
+                    document.getElementById('textarea2').value = message;
+                    return;
+                }
+                document.getElementById('textarea2').value += '/\r\n' + message;
+            }
+            function processCommand(comm){
+                let e = document.getElementById('textarea1');
+                let postArea = document.getElementById('textarea2');
+                let data = comm.split(' ');
+                e.value = '';
+                switch(data[0]){
+                    case '-help':
+                        e.value = '1) -help\r\n2) -close -- closes the window\r\n3) -post \'message body\' -- posts a message\r\n4)-saveposts -- saves your post\r\n5)-parseposts -- gets posts from url\r\n6)-clear -- clears text fields';
+                        break;
+                    case '-hi':
+                        e.value = 'Hi!'; break;
+                    case '-close':
+                        var res = prompt('are you sure you want to close the window? (Y/n)');
+                        if (res.toLowerCase() == 'y')
+                            window.close();
+                        break;
+                    case '-post':
+                        if (comm.indexOf('\'') == -1){
+                            post(comm.split(' ')[1]);
+                            break;
+                        }
+                        post(comm.split('\'')[1]);
+                        break;
+                    case '-saveposts':
+                        //saveArea2Text();
+                        e.value = 'Grisha gay';
+                        document.getElementById('textarea2').value = window.location.href.slice(0, window.location.href.indexOf('?')) + '?posts=' + postArea.value;
+                        break;
+                    case '-parseposts':
+                        postArea.value = new URL(window.location.href).searchParams.get('posts').replaceAll('/', '\r\n');
+                        break;
+                    case '-clear':
+                        e.value = '';
+                        postArea.value = '';
+                        break;
+                    default:
+                        e.value = 'unknown command';
+                }
+            }
+            function Input1OnKeyDown(e){
+                if (window.event.keyCode == 13){
+                    processCommand(e.value);
+                    e.value = '';
+                }
+            }
+
+            function main(){
+                getElementById('textarea2').value = new URL(window.location.href).searchParams.get('posts');
+            }
+
+            main();
+        </script>
+        
+    </head>
+    <body>
+        <input id='inputField1' onkeydown='Input1OnKeyDown(this);'></input><br>
+        <label>Informational window</label><br>
+        <textarea id='textarea1' readonly>Enter '-help' to see a list of available commands</textarea><br>
+        <label>Posts:</label><br>
+        <textarea id='textarea2'></textarea><br>
+    </body>
+</html>
